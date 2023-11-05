@@ -59,6 +59,11 @@ public class PlayerControl : MonoBehaviour
 
         animator.SetInteger("AnimationState", (int)playerState);
         transform.Rotate(Vector3.up, mouseInput.x * cameraSpeed * Time.deltaTime);
+
+        if (GameManager.instance.gameEnding)
+        {
+            OnDisable();
+        }
     }
 
     private void FixedUpdate()
@@ -80,6 +85,15 @@ public class PlayerControl : MonoBehaviour
     {
         cameraPivot.Rotate(Vector3.up, (cameraPivot.transform.rotation.eulerAngles.y - transform.rotation.eulerAngles.y) * 0.95f);
         playerCamera.Rotate(Vector3.right, -mouseInput.y * cameraSpeed * Time.deltaTime);
+
+        if (playerCamera.rotation.eulerAngles.x > 180 && playerCamera.rotation.eulerAngles.x < 320)
+        {
+            playerCamera.localRotation = Quaternion.Euler(320, 0, 0);
+        }
+        if (playerCamera.rotation.eulerAngles.x < 180 && playerCamera.rotation.eulerAngles.x > 40)
+        {
+            playerCamera.localRotation = Quaternion.Euler(40, 0, 0);
+        }
     }
 
     private void InteractAttempt()

@@ -6,9 +6,10 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     static public GameManager instance;
-    public float pipeDelay, spawnDelay, endDelay;
-    public bool cameraCutscene, startBurst, pipeBurst, smokeSeen, preparation, monsterSpawn, playerCaught, gameEnding;
+    public float pipeDelay, spawnDelay, endDelay, lastDelay;
+    public bool cameraCutscene, startBurst, pipeBurst, smokeSeen, preparation, monsterSpawn, playerCaught, gameEnding, finalPause;
 
+    public GameObject[] lights;
     private AudioSource doorBreach, fleshCrunch;
     private float progTimestamp;
 
@@ -22,6 +23,12 @@ public class GameManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
+        }
+        var childCount = GameObject.Find("LightParent").transform.childCount;
+        lights = new GameObject[childCount];
+        for (int i = 0; i < childCount; i++)
+        {
+            lights[i] = GameObject.Find("LightParent").transform.GetChild(i).gameObject;
         }
         doorBreach = transform.Find("DoorSmash").GetComponent<AudioSource>();
         fleshCrunch = transform.Find("FleshCrunch").GetComponent<AudioSource>();
@@ -55,13 +62,29 @@ public class GameManager : MonoBehaviour
 
         if (playerCaught && !gameEnding)
         {
-            //PlayerUIManager.instance.BlankScreen();
+            foreach (GameObject light in lights)
+            {
+                light.SetActive(false);
+            }
             fleshCrunch.Play();
             progTimestamp = Time.time;
             gameEnding = true;
         }
 
-        if (gameEnding && Time.time > progTimestamp + endDelay)
+        if (gameEnding && !finalPause && Time.time < progTimestamp + endDelay)
+        {
+            float alpha = Mathf.Lerp(0, 1, (Time.time - progTimestamp) / endDelay);
+            PlayerUIManager.instance.BlankScreen(alpha);
+        }
+
+        if (gameEnding && !finalPause && Time.time > progTimestamp + endDelay)
+        {
+            PlayerUIManager.instance.BlankScreen(1);
+            progTimestamp = Time.time;
+            finalPause = true;
+        }
+
+        if (finalPause && Time.time > progTimestamp + lastDelay)
         {
             Cursor.lockState = CursorLockMode.None;
             SceneManager.LoadScene("MenuScene", LoadSceneMode.Single);

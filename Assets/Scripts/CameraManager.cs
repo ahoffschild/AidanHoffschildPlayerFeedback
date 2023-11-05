@@ -7,7 +7,8 @@ using UnityEngine.UI;
 public class CameraManager : MonoBehaviour
 {
     public float chance, delay, blockDuration, monsterSpeed, cutsceneDuration1, cutsceneDuration2;
-    public GameObject blockImage, cutsceneMonster;
+    public Texture blockImage;
+    public GameObject cutsceneMonster;
     public RawImage camImage;
     public TextMeshProUGUI camText;
     public Texture[] camFeeds;
@@ -59,25 +60,25 @@ public class CameraManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (camImage.texture != camFeeds[currentFeed])
+        if (camImage.texture != camFeeds[currentFeed] && Time.time > blockTimestamp + blockDuration)
         {
             camImage.texture = camFeeds[currentFeed];
             camText.text = $"CAM {currentFeed + 1}";
         }
 
-        if (Time.time > chanceTimestamp + delay)
+        if (Time.time > chanceTimestamp + delay && currentFeed == 0)
         {
             if (Mathf.Round(Random.Range(1, chance)) == 1)
             {
-                blockImage.SetActive(true);
+                camImage.texture = blockImage;
                 blockTimestamp = Time.time;
             }
             chanceTimestamp = Time.time;
         }
 
-        if (Time.time > blockTimestamp + blockDuration && blockImage.activeSelf)
+        if (Time.time > blockTimestamp + blockDuration && camImage.texture == blockImage)
         {
-            blockImage.SetActive(false);
+            camImage.texture = camFeeds[currentFeed];
         }
 
         if (currentFeed + 1 == camFeeds.Length && !cutsceneMonster.activeSelf  && !GameManager.instance.cameraCutscene)

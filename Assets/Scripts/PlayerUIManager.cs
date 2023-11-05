@@ -2,11 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using UnityEngine.UIElements;
+using Cursor = UnityEngine.Cursor;
+using Image = UnityEngine.UI.Image;
 
 public class PlayerUIManager : MonoBehaviour
 {
     static public PlayerUIManager instance;
     private GameObject pauseUI, endUI, crosshair;
+    private Image endImage;
     private GameObject pausedPlayer;
 
     // Start is called before the first frame update
@@ -22,6 +27,7 @@ public class PlayerUIManager : MonoBehaviour
         }
         pauseUI = transform.Find("PauseMenu").gameObject;
         endUI = transform.Find("GameEnd").gameObject;
+        endImage = transform.Find("GameEnd").gameObject.GetComponent<Image>();
         crosshair = transform.Find("Crosshair").gameObject;
     }
 
@@ -56,8 +62,13 @@ public class PlayerUIManager : MonoBehaviour
         Application.Quit();
     }
 
-    public void BlankScreen()
+    public void BlankScreen(float alpha)
     {
-        endUI.SetActive(true);
+        if (!endUI.activeSelf)
+        {
+            endUI.SetActive(true);
+        }
+        endImage.color = new Color(0.1f, 0, 0, alpha);  
+        //endUI.GetComponent<Image>().color
     }
 }
